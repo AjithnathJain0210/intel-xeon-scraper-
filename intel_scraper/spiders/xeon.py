@@ -1,5 +1,6 @@
 import scrapy
 import json
+from intel_scraper.items import XeonItem
 
 
 class XeonSpider(scrapy.Spider):
@@ -19,29 +20,21 @@ class XeonSpider(scrapy.Spider):
             'a[href*="/products/sku/"]::attr(href)'
         ).getall()
 
-        print("Total Product Links:", len(product_links))
-
         # Skip the first 29 products.
         # Select the remaining 62 products.
         product_links = product_links[29:]
 
-        print("Products Selected:", len(product_links))
-
         # Check for duplicate product links
         unique_product_links = set(product_links)
 
-        print("Unique Products:", len(unique_product_links))
-
         if len(product_links) != len(unique_product_links):
-
-            print("DUPLICATE PRODUCT LINK FOUND")
 
             seen = set()
 
             for link in product_links:
 
                 if link in seen:
-                    print("DUPLICATE:", link)
+                    pass
 
                 else:
                     seen.add(link)
@@ -54,10 +47,7 @@ class XeonSpider(scrapy.Spider):
                 callback=self.parse_product
             )
 
-
     def parse_product(self, response):
-
-        print("PRODUCT PAGE REACHED:", response.url)
 
         # 1. Product Name
         product_name = response.css("h1::text").get()
@@ -235,37 +225,11 @@ class XeonSpider(scrapy.Spider):
             ensure_ascii=False
         )
 
-        # Print extracted values
-        print("----------------------------------------")
-        print("PRODUCT RESPONSE:", response.url)
-        print("----------------------------------------")
-
-        print("Product Name:", product_name)
-        print("Launch Date:", launch_date)
-        print("Total Cores:", total_cores)
-        print("Max Turbo Frequency:", max_turbo_frequency)
-        print("Processor Base Frequency:", processor_base_frequency)
-        print("Cache:", cache)
-        print("TDP:", tdp)
-        print("Category:", category)
-        print("Product Family:", product_family)
-        print("Product Line:", product_line)
-        print("Vertical Segment:", vertical_segment)
-        print("Processor Number:", processor_number)
-        print("Maximum Memory Channels:", maximum_memory_channels)
-        print("Maximum Memory Size:", maximum_memory_size)
-        print("Memory Type:", memory_type)
-        print("Maximum Memory Speed:", maximum_memory_speed)
-        print("ECC Memory Supported:", ecc_memory_supported)
-        print("Product Specification:", product_specification)
-
         # 22. URL
         url = response.url
-        print("URL:", url)
 
         # 23. Store
         store = "Intel"
-        print("Store:", store)
 
         # Navigate to Ordering & Compliance page
         ordering_url = response.url.replace(
@@ -302,12 +266,7 @@ class XeonSpider(scrapy.Spider):
             dont_filter=True
         )
 
-
     def parse_ordering(self, response):
-
-        # DEBUG: Check Ordering page response
-        print("ORDERING PAGE REACHED:", response.url)
-        print("STATUS:", response.status)
 
         # 19. Compliance Description
         compliance_description = response.css(
@@ -336,14 +295,6 @@ class XeonSpider(scrapy.Spider):
             ordering_codes
         )
 
-    
-        print("ORDERING RESPONSE:", response.url)
-        
-
-        print("Compliance Description:", compliance_description)
-        print("Specification Code:", specification_code)
-        print("Ordering Code:", ordering_code)
-
         # Get Product page values from meta
         product_name = response.meta["product_name"]
         launch_date = response.meta["launch_date"]
@@ -366,33 +317,31 @@ class XeonSpider(scrapy.Spider):
         url = response.meta["url"]
         store = response.meta["store"]
 
-        # Create the final item containing all 23 columns
-        item = {
-            "product_name": product_name,
-            "Launch Date": launch_date,
-            "Total Cores": total_cores,
-            "Max Turbo Frequency": max_turbo_frequency,
-            "Processor Base Frequency": processor_base_frequency,
-            "Cache": cache,
-            "TDP": tdp,
-            "category": category,
-            "product_family": product_family,
-            "product_line": product_line,
-            "vertical_segment": vertical_segment,
-            "processor_number": processor_number,
-            "maximum_memory_channels": maximum_memory_channels,
-            "maximum_memory_size": maximum_memory_size,
-            "memory_type": memory_type,
-            "maximum_memory_speed": maximum_memory_speed,
-            "ECC_memory_supported": ecc_memory_supported,
-            "product_specification": product_specification,
-            "compliance_description": compliance_description,
-            "specification_code": specification_code,
-            "ordering_code": ordering_code,
-            "url": url,
-            "store": store
-        }
+        # Create the final Scrapy Item
+        item = XeonItem()
 
-        print("FINAL ITEM CREATED:", product_name)
+        item["product_name"] = product_name
+        item["Launch Date"] = launch_date
+        item["Total Cores"] = total_cores
+        item["Max Turbo Frequency"] = max_turbo_frequency
+        item["Processor Base Frequency"] = processor_base_frequency
+        item["Cache"] = cache
+        item["TDP"] = tdp
+        item["category"] = category
+        item["product_family"] = product_family
+        item["product_line"] = product_line
+        item["vertical_segment"] = vertical_segment
+        item["processor_number"] = processor_number
+        item["maximum_memory_channels"] = maximum_memory_channels
+        item["maximum_memory_size"] = maximum_memory_size
+        item["memory_type"] = memory_type
+        item["maximum_memory_speed"] = maximum_memory_speed
+        item["ECC_memory_supported"] = ecc_memory_supported
+        item["product_specification"] = product_specification
+        item["compliance_description"] = compliance_description
+        item["specification_code"] = specification_code
+        item["ordering_code"] = ordering_code
+        item["url"] = url
+        item["store"] = store
 
         yield item

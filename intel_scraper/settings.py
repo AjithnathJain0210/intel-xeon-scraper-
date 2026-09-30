@@ -84,4 +84,38 @@ DOWNLOAD_DELAY = 1
 #HTTPCACHE_STORAGE = "scrapy.extensions.httpcache.FilesystemCacheStorage"
 
 # Set settings whose default value is deprecated to a future-proof value
+# Set settings whose default value is deprecated to a future-proof value
 FEED_EXPORT_ENCODING = "utf-8"
+
+FEEDS = {
+    "products.csv": {
+        "format": "csv",
+        "overwrite": True,
+        "encoding": "utf-8",
+        "fields": [
+            "product_name",
+            "Launch Date",
+            "Total Cores",
+            "Max Turbo Frequency",
+            "Processor Base Frequency",
+            "Cache",
+            "TDP",
+            "category",
+            "product_family",
+            "product_line",
+            "vertical_segment",
+            "processor_number",
+            "maximum_memory_channels",
+            "maximum_memory_size",
+            "memory_type",
+            "maximum_memory_speed",
+            "ECC_memory_supported",
+            "product_specification",
+            "compliance_description",
+            "specification_code",
+            "ordering_code",
+            "url",
+            "store",
+        ],
+    },
+}
